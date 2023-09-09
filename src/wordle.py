@@ -16,22 +16,31 @@ def main():
         if wordsize < 5 or wordsize > 8:
             sys.exit("Error: wordsize must be either 5, 6, 7 or 8")
     
-    file_path = f"/home/bhavik/wordy/words/answers/{wordsize}.txt"
-    with open(file_path) as file:
+    with open("path.txt") as file:
+        path = file.readline().strip()
+
+    file_path_answers = path + f"/wordy/words/answers/{wordsize}.txt"    
+    with open(file_path_answers) as file:
         words = file.readlines()    
         words = [word.replace('\n','') for word in words]
   
     choice = random.choice(words)
     guesses = wordsize + 1
     won = False
-    cprint("THIS IS WORDLE", "green")
-    cprint(f"You have {wordsize} tries to guess the {wordsize}-letter word")
+    cprint(f"{wordsize} letter - WORDLE", "green")
+    cprint(f"You have {guesses} tries to guess the {wordsize}-letter word")
+
+    file_path_possible = path + f"/wordy/words/allowed/allowed_{wordsize}_letter.txt"
+
+    with open(file_path_possible) as file:
+        allowed_words = file.readlines()
+        allowed_words = [word.replace('\n', '') for word in allowed_words]
 
     for i in range(0, guesses):
-        guess = get_guess(wordsize)
+        guess = get_guess(allowed_words)
         status = [0] * wordsize
         score = check_word(guess, status, choice)
-        print(f"Guess {i + 1}:", end="")
+        print(f"Guess {i + 1} : ", end="")
         print_word(guess, status)
         if score == (EXACT * wordsize):
             won = True
@@ -40,28 +49,42 @@ def main():
     if won:
         print("You won!")
     else:
-        print(f"The correct word was: {choice}")
+        print(f"The correct word was : {choice}")
 
 
-def get_guess(wordsize):
-    guess = ""
-    while (len(guess) != wordsize):
-        guess = input(f"Input a {wordsize}-letter word: ")
-    return guess
+def get_guess(allowed_words):
+    while True:
+        guess = input("Enter your guess : ")
+        if guess in allowed_words:
+            return guess
+        else:
+            print("Please enter a valid word.")
+
 
 def check_word(guess, status, choice):
     score = 0
-    for i, guess_letter in enumerate(guess):
-        for j, choice_letter in enumerate(choice):
-            if guess_letter == choice_letter:
-                if i == j:
-                    status[i] = EXACT
+    choice_info = create_word(choice) 
+    guess_info = create_word(guess) 
+    for letter in guess_info:
+        found, correct_positions = find_letter(letter, choice_info)
+        if found:
+            correct_occurences = len(correct_positions) 
+            for position in correct_positions:
+                if position in letter.positions:
+                    status[position] = EXACT
                     score += EXACT
-                    break
-                else:
-                    status[i] = CLOSE
-                    score += CLOSE
+                    correct_occurences -= 1
+            if correct_occurences > 0:
+                left_positions = letter.positions - correct_positions
+                for position in left_positions:
+                    if correct_occurences <= 0:
+                        break
+                    else:
+                        status[position] = CLOSE
+                        score += CLOSE
+                        correct_occurences -= 1
     return score
+
 
 def print_word(guess, status):
     for i, letter in enumerate(guess):
@@ -72,6 +95,35 @@ def print_word(guess, status):
         else:
             print(letter, end="")
     print()
+
+
+class Letter:
+    def __init__(self, letter) -> None:
+        self.letter = letter
+        self.positions = set() 
+    
+    def __str__(self):
+        return f"{self.letter} : {str(self.positions)}"
+
+
+def create_word(word):
+    letters = []
+    unique_letters = set(word)
+    for letter in unique_letters:
+        a_letter = Letter(letter)
+        for i, each in enumerate(word):
+            if each == letter:
+                a_letter.positions.add(i)
+        letters.append(a_letter)
+    return letters 
+
+
+def find_letter(letter, word):
+    for each in word:
+        if letter.letter == each.letter:
+            return True, each.positions
+    return False, None
+
 
 if __name__ == "__main__":
     main()
