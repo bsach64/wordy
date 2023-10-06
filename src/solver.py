@@ -3,10 +3,11 @@ from itertools import product
 from copy import deepcopy
 
 
-def calculate_entropy(word, possible_words):
+def calculate_entropy(word: str, possible_words: [str]):
     """
     (entropy) E[information] = Summation(p(x)*information)
     This functions calculates the entropy { E[information] } for a given word.
+    Rounded to two decimal places.
     """
     sum = 0
     possible_status = list(product([0, 1, 2], repeat=5))
@@ -17,7 +18,7 @@ def calculate_entropy(word, possible_words):
     return round(sum, 2)
 
 
-def calculate_info_with_probability(probability):
+def calculate_info_with_probability(probability: float):
     """
     information = -(log2(p(x))) { negative of log base 2 of probability of x }
     Calculates information { in terms of bits } for a given word.
@@ -27,14 +28,18 @@ def calculate_info_with_probability(probability):
     else:
         return 0
     
-def calculate_probability(guess, status, possible_words):
+def calculate_probability(guess: str, status: [int], possible_words: [str]):
     """
     (probability) p = Number of words (with same status) / possible_words
+    Rounded to 4 decimal places.
     """
     return round((len(possible_matches(guess, status, possible_words))/ len(possible_words)), 4)
 
 
-def possible_matches(guess, status, possible_words):
+def possible_matches(guess: str, status: [int], possible_words: [str]):
+    """
+    Returns the subset of words which match according to the status.
+    """
     possible_words_copy = deepcopy(possible_words)
     for i, letter in enumerate(guess):
         if status[i] == 0:
@@ -46,14 +51,14 @@ def possible_matches(guess, status, possible_words):
     return possible_words_copy
 
 
-def words_without_letter(letter, possible_words):
+def words_without_letter(letter: str, possible_words: [str]):
     for word in possible_words.copy():
         if letter in word:
             possible_words.remove(word)
     return possible_words
 
 
-def words_containing_letter(letter, possible_words, position):
+def words_containing_letter(letter: str, possible_words: [str], position: int):
     new_possible_words = []
     for word in possible_words:
         valid = False
@@ -68,7 +73,7 @@ def words_containing_letter(letter, possible_words, position):
     return new_possible_words
 
 
-def words_with_letter_at_correct_position(letter, position, possible_words):
+def words_with_letter_at_correct_position(letter: str, position: int, possible_words: [str]):
     for word in possible_words.copy():
         if word[position] != letter:
             possible_words.remove(word)
