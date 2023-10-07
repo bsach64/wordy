@@ -37,44 +37,45 @@ def calculate_probability(guess: str, status: [int], possible_words: [str]):
 
 
 def possible_matches(guess: str, status: [int], possible_words: [str]):
-    """
-    Returns the subset of words which match according to the status.
-    """
-    possible_words_copy = deepcopy(possible_words)
+    new_possible_words = []
+    letters_not_in_word = []
+    letters_at_correct_location = dict()
+    letters_at_incorrect_location = dict()
+    
     for i, letter in enumerate(guess):
         if status[i] == 0:
-            possible_words_copy = words_without_letter(letter, possible_words_copy)
+            letters_not_in_word.append(letter)
         elif status[i] == 1:
-            possible_words_copy = words_containing_letter(letter, possible_words_copy, i)
+            letters_at_incorrect_location[letter] = i
         elif status[i] == 2:
-            possible_words_copy = words_with_letter_at_correct_position(letter, i, possible_words_copy) 
-    return possible_words_copy
-
-
-def words_without_letter(letter: str, possible_words: [str]):
-    for word in possible_words.copy():
-        if letter in word:
-            possible_words.remove(word)
-    return possible_words
-
-
-def words_containing_letter(letter: str, possible_words: [str], position: int):
-    new_possible_words = []
+            letters_at_correct_location[i] = letter
+    
     for word in possible_words:
-        valid = False
-        for i, word_letter in enumerate(word):
-            if word_letter == letter and i != position:
-                valid = True
-            elif word_letter == letter and i == position:
-                valid = False
+        match = False
+        for i, letter in enumerate(word):
+            if letter in letters_not_in_word:
+                match = False
                 break
-        if valid:
+            elif i in letters_at_correct_location:
+                if letter != letters_at_correct_location[i]: 
+                    match = False
+                    break
+                else:
+                    match = True
+            elif letter in letters_at_incorrect_location:
+                if i != letters_at_incorrect_location[letter]:
+                    match = True
+                else:
+                    match = False
+                    break
+            else:
+                match = True
+        for letter in letters_at_incorrect_location:
+            if letter not in word:
+                match = False
+                break
+        
+        if match:
             new_possible_words.append(word)
+    
     return new_possible_words
-
-
-def words_with_letter_at_correct_position(letter: str, position: int, possible_words: [str]):
-    for word in possible_words.copy():
-        if word[position] != letter:
-            possible_words.remove(word)
-    return possible_words
