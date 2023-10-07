@@ -2,8 +2,10 @@ import sys
 from termcolor import cprint
 import random
 
-EXACT = 2
-CLOSE = 1
+EXACT = 2 # If letter in correct place
+CLOSE = 1 # If letter not in correct place
+# 0 If letter not in word
+
 
 def main():
     if (len(sys.argv)) != 2:
@@ -23,7 +25,7 @@ def main():
     with open(file_path_answers) as file:
         words = file.readlines()    
         words = [word.replace('\n','') for word in words]
-  
+
     choice = random.choice(words)
     guesses = wordsize + 1
     won = False
@@ -52,7 +54,10 @@ def main():
         print(f"The correct word was : {choice}")
 
 
-def get_guess(allowed_words):
+def get_guess(allowed_words: [str]):
+    """
+    Continuously asks for input until a valid word is provided.
+    """
     while True:
         guess = input("Enter your guess : ")
         if guess in allowed_words:
@@ -61,7 +66,11 @@ def get_guess(allowed_words):
             print("Please enter a valid word.")
 
 
-def check_word(guess, status, choice):
+def check_word(guess: str, status: [int], choice: str):
+    """
+    Updates the status list with the score of each letter: 0, CLOSE, EXACT.
+    Score is returned which is used to check whether the guess is correct.
+    """
     score = 0
     choice_info = create_word(choice) 
     guess_info = create_word(guess) 
@@ -86,7 +95,10 @@ def check_word(guess, status, choice):
     return score
 
 
-def print_word(guess, status):
+def print_word(guess: str, status: [int]):
+    """
+    Used to colour print the guess according to the status.
+    """
     for i, letter in enumerate(guess):
         if status[i] == EXACT:
             cprint(letter, "green", end="")
@@ -98,7 +110,11 @@ def print_word(guess, status):
 
 
 class Letter:
-    def __init__(self, letter) -> None:
+    """
+    Each word is represented as an list of Letter Objects.
+    This was done to better handle edge cases while assigning status to words with repeating letters.
+    """
+    def __init__(self, letter: str) -> None:
         self.letter = letter
         self.positions = set() 
     
@@ -106,7 +122,10 @@ class Letter:
         return f"{self.letter} : {str(self.positions)}"
 
 
-def create_word(word):
+def create_word(word: [Letter]):
+    """
+    Represents the guess and correct answer as a list of Letter Class objects.
+    """
     letters = []
     unique_letters = set(word)
     for letter in unique_letters:
@@ -118,7 +137,18 @@ def create_word(word):
     return letters 
 
 
-def find_letter(letter, word):
+def find_letter(letter: Letter, word: [Letter]):
+    """
+    letter: Letter Class object
+    word: list of Letter Class objects
+    returns True and all positions in the word of the letter.
+    
+    For example, 
+        letter.letter = 'a'
+        word = [a, d, e, f]
+        a.positions = [1, 2]
+        function returns [True, [1, 2]] 
+    """
     for each in word:
         if letter.letter == each.letter:
             return True, each.positions
