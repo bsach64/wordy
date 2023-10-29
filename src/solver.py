@@ -1,6 +1,5 @@
 import math
 from itertools import product
-from copy import deepcopy
 
 
 def calculate_entropy(word: str, possible_words: [str]):
@@ -27,13 +26,14 @@ def calculate_info_with_probability(probability: float):
         return -(math.log(probability, 2))
     else:
         return 0
-    
+
+
 def calculate_probability(guess: str, status: [int], possible_words: [str]):
     """
     (probability) p = Number of words (with same status) / possible_words
     Rounded to 4 decimal places.
     """
-    return round((len(possible_matches(guess, status, possible_words))/ len(possible_words)), 4)
+    return round((len(possible_matches(guess, status, possible_words)) / len(possible_words)), 4)
 
 
 def possible_matches(guess: str, status: [int], possible_words: [str]):
@@ -41,7 +41,7 @@ def possible_matches(guess: str, status: [int], possible_words: [str]):
     letters_not_in_word = []
     letters_at_correct_location = dict()
     letters_at_incorrect_location = dict()
-    
+
     for i, letter in enumerate(guess):
         if status[i] == 0:
             letters_not_in_word.append(letter)
@@ -49,7 +49,7 @@ def possible_matches(guess: str, status: [int], possible_words: [str]):
             letters_at_incorrect_location[letter] = i
         elif status[i] == 2:
             letters_at_correct_location[i] = letter
-    
+
     for word in possible_words:
         match = False
         for i, letter in enumerate(word):
@@ -57,7 +57,7 @@ def possible_matches(guess: str, status: [int], possible_words: [str]):
                 match = False
                 break
             elif i in letters_at_correct_location:
-                if letter != letters_at_correct_location[i]: 
+                if letter != letters_at_correct_location[i]:
                     match = False
                     break
                 else:
@@ -74,8 +74,8 @@ def possible_matches(guess: str, status: [int], possible_words: [str]):
             if letter not in word:
                 match = False
                 break
-        
-        if match:
-            new_possible_words.append(word)
-    
+
+    if match:
+        new_possible_words.append(word)
+
     return new_possible_words

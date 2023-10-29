@@ -2,8 +2,8 @@ import sys
 from termcolor import cprint
 import random
 
-EXACT = 2 # If letter in correct place
-CLOSE = 1 # If letter not in correct place
+EXACT = 2  # If letter in correct place
+CLOSE = 1  # If letter not in correct place
 # 0 If letter not in word
 
 
@@ -17,14 +17,14 @@ def main():
             sys.exit("Wordsize should be an Integer")
         if wordsize < 5 or wordsize > 8:
             sys.exit("Error: wordsize must be either 5, 6, 7 or 8")
-    
+
     with open("path.txt") as file:
         path = file.readline().strip()
 
-    file_path_answers = path + f"/wordy/words/answers/{wordsize}.txt"    
+    file_path_answers = path + f"/wordy/words/answers/{wordsize}.txt"
     with open(file_path_answers) as file:
-        words = file.readlines()    
-        words = [word.replace('\n','') for word in words]
+        words = file.readlines()
+        words = [word.replace('\n', '') for word in words]
 
     choice = random.choice(words)
     guesses = wordsize + 1
@@ -47,14 +47,14 @@ def main():
         if score == (EXACT * wordsize):
             won = True
             break
-    
+
     if won:
         print("You won!")
     else:
         print(f"The correct word was : {choice}")
 
 
-def get_guess(allowed_words: [str]):
+def get_guess(allowed_words: [str]) -> str:
     """
     Continuously asks for input until a valid word is provided.
     """
@@ -66,18 +66,18 @@ def get_guess(allowed_words: [str]):
             print("Please enter a valid word.")
 
 
-def check_word(guess: str, status: [int], choice: str):
+def check_word(guess: str, status: [int], choice: str) -> int:
     """
     Updates the status list with the score of each letter: 0, CLOSE, EXACT.
     Score is returned which is used to check whether the guess is correct.
     """
     score = 0
-    choice_info = create_word(choice) 
-    guess_info = create_word(guess) 
+    choice_info = create_word(choice)
+    guess_info = create_word(guess)
     for letter in guess_info:
         found, correct_positions = find_letter(letter, choice_info)
         if found:
-            correct_occurences = len(correct_positions) 
+            correct_occurences = len(correct_positions)
             for position in correct_positions:
                 if position in letter.positions:
                     status[position] = EXACT
@@ -95,7 +95,7 @@ def check_word(guess: str, status: [int], choice: str):
     return score
 
 
-def print_word(guess: str, status: [int]):
+def print_word(guess: str, status: [int]) -> None:
     """
     Used to colour print the guess according to the status.
     """
@@ -114,15 +114,16 @@ class Letter:
     Each word is represented as an list of Letter Objects.
     This was done to better handle edge cases while assigning status to words with repeating letters.
     """
+
     def __init__(self, letter: str) -> None:
         self.letter = letter
-        self.positions = set() 
-    
+        self.positions = set()
+
     def __str__(self):
         return f"{self.letter} : {str(self.positions)}"
 
 
-def create_word(word: [Letter]):
+def create_word(word: str) -> [Letter]:
     """
     Represents the guess and correct answer as a list of Letter Class objects.
     """
@@ -134,20 +135,20 @@ def create_word(word: [Letter]):
             if each == letter:
                 a_letter.positions.add(i)
         letters.append(a_letter)
-    return letters 
+    return letters
 
 
-def find_letter(letter: Letter, word: [Letter]):
+def find_letter(letter: Letter, word: [Letter]) -> [bool, [int]]:
     """
     letter: Letter Class object
     word: list of Letter Class objects
     returns True and all positions in the word of the letter.
-    
-    For example, 
+
+    For example,
         letter.letter = 'a'
         word = [a, d, e, f]
         a.positions = [1, 2]
-        function returns [True, [1, 2]] 
+        function returns [True, [1, 2]]
     """
     for each in word:
         if letter.letter == each.letter:
