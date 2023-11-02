@@ -1,7 +1,8 @@
-from wordle import check_word
+from wordle import check_word, create_word
 
 
 def main():
+    test_create_word()
     test_check_word()
 
 
@@ -24,6 +25,20 @@ def test_check_word():
     status = [0, 0, 0, 0, 0]
     assert check_word("vague", status, "pills") == 0
     assert status == [0, 0, 0, 0, 0]
+
+
+def test_create_word():
+    assert create_word("melee") == {
+        'e': [1, 3, 4],
+        'l': [2],
+        'm': [0]
+    }
+
+    assert create_word("eerie") == {
+        'e': [0, 1, 4],
+        'r': [2],
+        'i': [3]
+    }
 
 
 if __name__ == "__main__":

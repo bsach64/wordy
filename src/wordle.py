@@ -75,23 +75,20 @@ def check_word(guess: str, status: [int], choice: str) -> int:
     choice_info = create_word(choice)
     guess_info = create_word(guess)
     for letter in guess_info:
-        found, correct_positions = find_letter(letter, choice_info)
-        if found:
-            correct_occurences = len(correct_positions)
-            for position in correct_positions:
-                if position in letter.positions:
+        if letter in choice_info:
+            occurence_count = len(choice_info[letter])
+            for position in choice_info[letter]:
+                if position in guess_info[letter]:
                     status[position] = EXACT
                     score += EXACT
-                    correct_occurences -= 1
-            if correct_occurences > 0:
-                left_positions = letter.positions - correct_positions
-                for position in left_positions:
-                    if correct_occurences <= 0:
-                        break
-                    else:
-                        status[position] = CLOSE
-                        score += CLOSE
-                        correct_occurences -= 1
+                    occurence_count -= 1
+            if occurence_count > 0:
+                while occurence_count > 0:
+                    for position in guess_info[letter]:
+                        if status[position] != EXACT:
+                            status[position] = CLOSE
+                            occurence_count -= 1
+                            score += CLOSE
     return score
 
 
@@ -109,51 +106,18 @@ def print_word(guess: str, status: [int]) -> None:
     print()
 
 
-class Letter:
+def create_word(word: str) -> dict:
     """
-    Each word is represented as an list of Letter Objects.
-    This was done to better handle edge cases while assigning status to words with repeating letters.
+    Represents a word as a dictionary where the keys are the letters,
+    the value is a list of the positions of the letter.
     """
-
-    def __init__(self, letter: str) -> None:
-        self.letter = letter
-        self.positions = set()
-
-    def __str__(self):
-        return f"{self.letter} : {str(self.positions)}"
-
-
-def create_word(word: str) -> [Letter]:
-    """
-    Represents the guess and correct answer as a list of Letter Class objects.
-    """
-    letters = []
-    unique_letters = set(word)
-    for letter in unique_letters:
-        a_letter = Letter(letter)
-        for i, each in enumerate(word):
-            if each == letter:
-                a_letter.positions.add(i)
-        letters.append(a_letter)
-    return letters
-
-
-def find_letter(letter: Letter, word: [Letter]) -> [bool, [int]]:
-    """
-    letter: Letter Class object
-    word: list of Letter Class objects
-    returns True and all positions in the word of the letter.
-
-    For example,
-        letter.letter = 'a'
-        word = [a, d, e, f]
-        a.positions = [1, 2]
-        function returns [True, [1, 2]]
-    """
-    for each in word:
-        if letter.letter == each.letter:
-            return True, each.positions
-    return False, None
+    info = dict()
+    for i, letter in enumerate(word):
+        if letter in info:
+            info[letter].append(i)
+        else:
+            info[letter] = [i]
+    return info
 
 
 if __name__ == "__main__":
