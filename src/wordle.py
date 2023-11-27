@@ -77,17 +77,20 @@ def check_word(guess: str, status: [int], choice: str) -> int:
     for letter in guess_info:
         if letter in choice_info:
             occurence_count = len(choice_info[letter])
+            guess_count = len(guess_info[letter])
             for position in choice_info[letter]:
                 if position in guess_info[letter]:
                     status[position] = EXACT
                     score += EXACT
                     occurence_count -= 1
+                    guess_count -= 1
             if occurence_count > 0:
-                while occurence_count > 0:
+                while occurence_count > 0 and guess_count > 0:
                     for position in guess_info[letter]:
                         if status[position] != EXACT:
                             status[position] = CLOSE
                             occurence_count -= 1
+                            guess_count -= 1
                             score += CLOSE
     return score
 

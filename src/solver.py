@@ -1,15 +1,16 @@
 import math
 from itertools import product
+from wordle import CLOSE, EXACT
 
 
-def calculate_entropy(word: str, possible_words: [str]):
+def calculate_entropy(word: str, possible_words: [str], repeat=5):
     """
     (entropy) E[information] = Summation(p(x)*information)
     This functions calculates the entropy { E[information] } for a given word.
     Rounded to two decimal places.
     """
     sum = 0
-    possible_status = list(product([0, 1, 2], repeat=5))
+    possible_status = list(product([0, 1, 2], repeat=repeat))
     for status in possible_status:
         probability = calculate_probability(word, list(status), possible_words)
         info = calculate_info_with_probability(probability)
@@ -36,46 +37,57 @@ def calculate_probability(guess: str, status: [int], possible_words: [str]):
     return round((len(possible_matches(guess, status, possible_words)) / len(possible_words)), 4)
 
 
-def possible_matches(guess: str, status: [int], possible_words: [str]):
-    new_possible_words = []
-    letters_not_in_word = []
-    letters_at_correct_location = dict()
-    letters_at_incorrect_location = dict()
-
-    for i, letter in enumerate(guess):
-        if status[i] == 0:
-            letters_not_in_word.append(letter)
-        elif status[i] == 1:
-            letters_at_incorrect_location[letter] = i
-        elif status[i] == 2:
-            letters_at_correct_location[i] = letter
-
+def possible_matches(guess: str, status: [int], possible_words: [str]) -> [str]:
+    matches = []
     for word in possible_words:
-        match = False
-        for i, letter in enumerate(word):
-            if letter in letters_not_in_word:
-                match = False
-                break
-            elif i in letters_at_correct_location:
-                if letter != letters_at_correct_location[i]:
-                    match = False
-                    break
-                else:
-                    match = True
-            elif letter in letters_at_incorrect_location:
-                if i != letters_at_incorrect_location[letter]:
-                    match = True
-                else:
-                    match = False
-                    break
+        if _is_possible_match(guess, status, word):
+            matches.append(word)
+    return matches
+
+
+def _is_possible_match(guess: str, status: [int], match: str):
+    not_letters = set()
+    not_contains = dict()
+    for i, letter in enumerate(guess):
+        if status[i] == EXACT:
+            if letter != match[i]:
+                return False
+        elif status[i] == 0:
+            not_letters.add(letter)
+        if status[i] == CLOSE:
+            not_contains[i] = letter
+
+    for letter in not_contains.values():
+        if letter in not_letters:
+            not_letters.remove(letter)
+
+    for letter in not_contains.values():
+        if letter not in match:
+            return False
+
+    for i, letter in enumerate(match):
+        if letter in not_letters:
+            return False
+        if i in not_contains:
+            if not_contains[i] == letter:
+                return False
+
+    if len(guess) != len(set(guess)):
+        count_close = _count_close_occurences(guess, status)
+        count_match = _count_close_occurences(match, status)
+        for letter in count_match:
+            if letter in count_close:
+                if count_match[letter] < count_close[letter]:
+                    return False
+    return True
+
+
+def _count_close_occurences(guess, status):
+    counts = dict()
+    for i, letter in enumerate(guess):
+        if status[i] == CLOSE:
+            if letter in counts:
+                counts[letter] += 1
             else:
-                match = True
-        for letter in letters_at_incorrect_location:
-            if letter not in word:
-                match = False
-                break
-
-    if match:
-        new_possible_words.append(word)
-
-    return new_possible_words
+                counts[letter] = 1
+    return counts
