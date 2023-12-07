@@ -14,7 +14,7 @@ def calculate_entropy(word: str, possible_words: [str], repeat=5):
     for status in possible_status:
         probability = calculate_probability(word, list(status), possible_words)
         info = calculate_info_with_probability(probability)
-        sum += (probability*info)
+        sum += probability*info
     return round(sum, 2)
 
 
@@ -37,36 +37,41 @@ def calculate_probability(guess: str, status: [int], possible_words: [str]):
     return round((len(possible_matches(guess, status, possible_words)) / len(possible_words)), 4)
 
 
-def possible_matches(guess: str, status: [int], possible_words: [str]) -> [str]:
+def possible_matches(guess: str, status: [int], possible_words: [str], previous_guess=set()) -> [str]:
     matches = []
     for word in possible_words:
-        if _is_possible_match(guess, status, word):
+        if _is_possible_match(guess, status, word) and word not in previous_guess:
             matches.append(word)
     return matches
 
 
 def _is_possible_match(guess: str, status: [int], match: str):
-    not_letters = set()
-    not_contains = dict()
+    nope = set()  # Match should not contain these letters
+    not_contains = dict()  # key: position where value: letter should not be
+    exact = set()
     for i, letter in enumerate(guess):
         if status[i] == EXACT:
             if letter != match[i]:
                 return False
+            else:
+                exact.add((i, letter))
         elif status[i] == 0:
-            not_letters.add(letter)
+            nope.add(letter)
         if status[i] == CLOSE:
             not_contains[i] = letter
 
     for letter in not_contains.values():
-        if letter in not_letters:
-            not_letters.remove(letter)
+        if letter in nope:
+            nope.remove(letter)
 
     for letter in not_contains.values():
         if letter not in match:
             return False
 
     for i, letter in enumerate(match):
-        if letter in not_letters:
+        if (i, letter) in exact:
+            continue
+        if letter in nope:
             return False
         if i in not_contains:
             if not_contains[i] == letter:
@@ -75,10 +80,12 @@ def _is_possible_match(guess: str, status: [int], match: str):
     if len(guess) != len(set(guess)):
         count_close = _count_close_occurences(guess, status)
         count_match = _count_close_occurences(match, status)
-        for letter in count_match:
-            if letter in count_close:
+        for letter in count_close:
+            if letter in count_match:
                 if count_match[letter] < count_close[letter]:
                     return False
+            else:
+                return False
     return True
 
 
