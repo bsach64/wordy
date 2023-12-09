@@ -1,10 +1,11 @@
+import sys
 import random
 import json
-from wordle import check_word, print_word, EXACT
+from wordle import check_word, print_word, EXACT, get_guess
 from solver import possible_matches, calculate_entropy
 from copy import deepcopy
 from termcolor import cprint
-from wordle import *
+
 
 file_path_answers = "/home/scifre/Desktop/wordy/words/answers/5.txt"
 with open(file_path_answers) as file:
@@ -13,7 +14,7 @@ with open(file_path_answers) as file:
 
 
 file_path_allowed = "/home/scifre/Desktop/wordy/words/allowed/allowed_5_letter.txt"
-with open(file_path_answers) as file:
+with open(file_path_allowed) as file:
     words = file.readlines()
     words = [word.replace('\n', '') for word in words]
 
@@ -59,15 +60,14 @@ def main():
         user_score = check_word(user_guess, user_status, choice)
         status = [0] * wordsize
         score = check_word(guess, status, choice)
-        print()
-        
-        print(f"User Guess {i + 1} : ", end='')
+                
+        print('\033[F', '\033[K' f"\rUser Guess {i + 1} : ", end='')
         print_word(user_guess, user_status)
         if user_score == (EXACT * wordsize):
             won = True
             break
         
-        print()
+        
         print(f"Computer Guess {i + 1} : ", end="")
         print_word(guess, status)
         if score == (EXACT * wordsize):
@@ -75,7 +75,7 @@ def main():
             stats[i + 1] += 1
             print(stats)
             break
-        
+        print()
         words_copy = possible_matches(guess, status, words_copy, previous_guess)
         entropies = dict()
         for word in words_copy:
@@ -88,11 +88,11 @@ def main():
             print(help)
 
     if won:
-        print("Congratulation!, You Won")
+        print("\nCongratulation!, You Won")
     elif comp_won:
-        print("Computer Won, better luck next time")
+        print("\nComputer Won, better luck next time!")
     else:
-        print("Sorry, Both failed")
+        print("\nSorry, Both failed")
         
     #print(stats)
     
