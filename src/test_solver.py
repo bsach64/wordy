@@ -1,23 +1,19 @@
-import json
 from wordle import check_word, print_word, EXACT
 from solver import possible_matches, calculate_entropy
 from copy import deepcopy
+from pathlib import Path
 
-file_path_answers = "/home/bhavik/Code/wordy/words/allowed/allowed_5_letter.txt"
+
+file_path_answers = Path("../words/answers/nyt5.txt")
 with open(file_path_answers) as file:
     answers = file.readlines()
     answers = [word.replace('\n', '') for word in answers]
 
 
-file_path_allowed = "/home/bhavik/Code/wordy/words/allowed/allowed_5_letter.txt"
+file_path_allowed = Path("../words/allowed/allowed_5_letter.txt")
 with open(file_path_answers) as file:
     words = file.readlines()
     words = [word.replace('\n', '') for word in words]
-
-
-things = dict()
-with open('entropies4.json') as file:
-    things = json.load(file)
 
 
 def next_guess(entropies):
@@ -30,11 +26,8 @@ def next_guess(entropies):
     return guess
 
 
-print(next_guess(things))
-
-
 def main():
-    stats = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0}
+    stats = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, "nope": 0}
     help = []
     for choice in answers:
         words_copy = deepcopy(words)
@@ -60,7 +53,7 @@ def main():
             guess = next_guess(entropies)
             previous_guess.add(guess)
             if i == 5:
-                stats[7] += 1
+                stats["nope"] += 1
                 help.append(choice)
                 print(help)
 
