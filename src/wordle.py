@@ -1,6 +1,7 @@
 import sys
 from termcolor import cprint
 import random
+from pathlib import Path
 
 EXACT = 2  # If letter in correct place
 CLOSE = 1  # If letter not in correct place
@@ -18,10 +19,7 @@ def main():
         if wordsize < 5 or wordsize > 8:
             sys.exit("Error: wordsize must be either 5, 6, 7 or 8")
 
-    with open("path.txt") as file:
-        path = file.readline().strip()
-
-    file_path_answers = path + f"/wordy/words/answers/{wordsize}.txt"
+    file_path_answers = Path(f'../words/answers/{wordsize}.txt')
     with open(file_path_answers) as file:
         words = file.readlines()
         words = [word.replace('\n', '') for word in words]
@@ -32,7 +30,7 @@ def main():
     cprint(f"{wordsize} letter - WORDLE", "green")
     cprint(f"You have {guesses} tries to guess the {wordsize}-letter word")
 
-    file_path_possible = path + f"/wordy/words/allowed/allowed_{wordsize}_letter.txt"
+    file_path_possible = Path(f'../words/allowed/allowed_{wordsize}_letter.txt')
 
     with open(file_path_possible) as file:
         allowed_words = file.readlines()

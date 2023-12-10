@@ -1,3 +1,4 @@
+
 import sys
 import random
 import json
@@ -8,6 +9,7 @@ from termcolor import cprint
 
 
 file_path_answers = "/home/scifre/Desktop/wordy/words/answers/5.txt"
+
 with open(file_path_answers) as file:
     answers = file.readlines()
     answers = [word.replace('\n', '') for word in answers]
@@ -17,11 +19,6 @@ file_path_allowed = "/home/scifre/Desktop/wordy/words/allowed/allowed_5_letter.t
 with open(file_path_allowed) as file:
     words = file.readlines()
     words = [word.replace('\n', '') for word in words]
-
-
-things = dict()
-with open('entropies4.json') as file:
-    things = json.load(file)
 
 
 def next_guess(entropies):
@@ -34,11 +31,8 @@ def next_guess(entropies):
     return guess
 
 
-print(next_guess(things))
-
-
 def main():
-    stats = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0}
+    stats = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, "nope": 0}
     help = []
     choice = random.choice(answers)
     print(f"----{choice}")
@@ -66,7 +60,6 @@ def main():
         if user_score == (EXACT * wordsize):
             won = True
             break
-        
         
         print(f"Computer Guess {i + 1} : ", end="")
         print_word(guess, status)
