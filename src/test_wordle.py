@@ -25,6 +25,12 @@ def test_check_word():
     status = [0, 0, 0, 0, 0]
     assert check_word("vague", status, "pills") == 0
     assert status == [0, 0, 0, 0, 0]
+    status = [0, 0, 0, 0, 0]
+    assert check_word("tears", status, "order") == 2
+    assert status == [0, 1, 0, 1, 0]
+    status = [0, 0, 0, 0, 0]
+    assert check_word("civic", status, "which") == 2
+    assert status == [1, 1, 0, 0, 0]
 
 
 def test_create_word():
@@ -38,6 +44,19 @@ def test_create_word():
         'e': [0, 1, 4],
         'r': [2],
         'i': [3]
+    }
+
+    assert create_word("which") == {
+        'w': [0],
+        'h': [1, 4],
+        'i': [2],
+        'c': [3]
+    }
+
+    assert create_word("civic") == {
+        'c': [0, 4],
+        'i': [1, 3],
+        'v': [2],
     }
 
 
