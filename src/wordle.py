@@ -8,17 +8,7 @@ CLOSE = 1  # If letter not in correct place
 # 0 If letter not in word
 
 
-def main():
-    if (len(sys.argv)) != 2:
-        sys.exit("Usage: python wordle.py wordsize")
-    else:
-        try:
-            wordsize = int(sys.argv[1])
-        except TypeError:
-            sys.exit("Wordsize should be an Integer")
-        if wordsize < 5 or wordsize > 8:
-            sys.exit("Error: wordsize must be either 5, 6, 7 or 8")
-
+def play(wordsize: int):
     file_path_answers = Path(f'../words/answers/{wordsize}.txt')
     with open(file_path_answers) as file:
         words = file.readlines()
@@ -50,6 +40,20 @@ def main():
         print("You won!")
     else:
         print(f"The correct word was : {choice}")
+
+
+def main():
+    if (len(sys.argv)) != 2:
+        sys.exit("Usage: python wordle.py wordsize")
+    else:
+        try:
+            wordsize = int(sys.argv[1])
+        except TypeError:
+            sys.exit("Wordsize should be an Integer")
+        if wordsize < 5 or wordsize > 8:
+            sys.exit("Error: wordsize must be either 5, 6, 7 or 8")
+
+    play(wordsize)
 
 
 def get_guess(allowed_words: [str]) -> str:
