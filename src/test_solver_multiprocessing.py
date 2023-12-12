@@ -21,7 +21,7 @@ def cal(index_range, stats, times, answers, words, wordsize, lock):
     for index in range(*index_range):
         start = time.time()
         choice = answers[index]
-        print(f"Answer: {choice}")
+        print(f"Answer: {choice}--{index}")
         words_copy = deepcopy(words)
         guesses = wordsize + 1
 
@@ -53,20 +53,20 @@ def cal(index_range, stats, times, answers, words, wordsize, lock):
 
 
 def simulate(wordsize: int):
-    file_path_answers = Path(f"../words/answers/{wordsize}.txt")
+    file_path_answers = Path(f"../words/answers/{'nyt5'if wordsize==5 else wordsize}.txt")
 
     with open(file_path_answers) as file:
         answers = file.readlines()
         answers = [word.replace('\n', '').strip() for word in answers]
 
-    file_path_allowed = Path(f"../words/answers/{wordsize}.txt")
+    file_path_allowed = Path(f"../words/answers/{'nyt5'if wordsize==5 else wordsize}.txt")
     with open(file_path_allowed) as file:
         words = file.readlines()
         words = [word.replace('\n', '').strip() for word in words]
 
     ms = time.time()
     with multiprocessing.Manager() as manager:
-        stats = manager.dict({1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0})
+        stats = manager.dict({(i+1):0 for i in range(wordsize+1)})
         times = manager.list()
         lock = manager.Lock()
 
@@ -94,4 +94,4 @@ def simulate(wordsize: int):
 
 
 if __name__ == "__main__":
-    simulate(7)
+    simulate(5)
