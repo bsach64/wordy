@@ -5,8 +5,7 @@
 2. `cd wordy/src`
 3. Run `python runner.py --help`
 ```
-python runner.py --help
-usage: runner.py [-h] [-p {5,6,7} | -c {5,6,7} | -f {5,6,7} | -s {5,6,7} | -r {5,6,7}]
+usage: runner.py [-h] [-p {5,6,7} | -c {5,6,7} | -f {5,6,7} | -s {5,6,7} | -r {5,6,7} | -g GUESS]
 
 Play and Solve wordle games
 
@@ -21,4 +20,7 @@ options:
   -s {5,6,7}, --stats {5,6,7}
                         Stats related to the solver
   -r {5,6,7}, --run {5,6,7}
-                        Runs the solver on a 100 random words```
+                        Runs the solver on a 100 random words
+  -g GUESS, --guess GUESS
+                        Give a 5, 6, 7 letter word to guess
+```
