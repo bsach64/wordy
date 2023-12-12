@@ -1,6 +1,7 @@
 import math
 from itertools import product
 from wordle import CLOSE, EXACT
+import json
 
 
 def calculate_entropy(word: str, possible_words: [str], repeat=5):
@@ -38,6 +39,9 @@ def calculate_probability(guess: str, status: [int], possible_words: [str]):
 
 
 def possible_matches(guess: str, status: [int], possible_words: [str], previous_guess=set()) -> [str]:
+    """
+    Returns a list of the next possible guess
+    """
     matches = []
     for word in possible_words:
         if _is_possible_match(guess, status, word) and word not in previous_guess:
@@ -46,9 +50,13 @@ def possible_matches(guess: str, status: [int], possible_words: [str], previous_
 
 
 def _is_possible_match(guess: str, status: [int], match: str):
+    """
+    Given a guess & its status, returns a bool whether match can be the next guess.
+    """
     nope = set()  # Match should not contain these letters
     not_contains = dict()  # key: position where value: letter should not be
     exact = set()
+
     for i, letter in enumerate(guess):
         if status[i] == EXACT:
             if letter != match[i]:
@@ -98,3 +106,17 @@ def _count_close_occurences(guess, status):
             else:
                 counts[letter] = 1
     return counts
+
+
+def best_first_guess(wordsize: int):
+    entropies = dict()
+    with open(f'entropies{wordsize}.json') as file:
+        entropies = json.load(file)
+
+    guess = ''
+    max_entropy = -1
+    for thing in entropies:
+        if entropies[thing] > max_entropy:
+            guess = thing
+            max_entropy = entropies[thing]
+    return guess, max_entropy
