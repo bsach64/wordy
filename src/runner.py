@@ -1,6 +1,6 @@
 import argparse
 from wordle import play
-from solver import best_first_guess
+from solver import best_first_guess, solve
 from user_v_comp import compete
 from test_solver_multiprocessing import simulate
 
@@ -53,6 +53,15 @@ group.add_argument(
     type=int,
     choices=[5, 6, 7]
 )
+
+# guess
+group.add_argument(
+    "-g",
+    "--guess",
+    help="Give a 5, 6, 7 letter word to guess",
+    type=str
+)
+
 args = parser.parse_args()
 
 if args.play:
@@ -75,3 +84,5 @@ elif args.stats:
         print("Average Number of Guesses: 2.728")
 elif args.run:
     simulate(args.run)
+elif args.guess:
+    solve(args.guess)

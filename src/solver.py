@@ -1,7 +1,9 @@
 import math
 from itertools import product
-from wordle import CLOSE, EXACT
+from wordle import CLOSE, EXACT, check_word, print_word
 import json
+from pathlib import Path
+from copy import deepcopy
 
 
 def calculate_entropy(word: str, possible_words: [str], repeat=5):
@@ -137,3 +139,55 @@ def best_first_guess(wordsize: int):
             guess = thing
             max_entropy = entropies[thing]
     return guess, max_entropy
+
+
+def next_guess(entropies):
+    guess = ''
+    max_entropy = -1
+    for thing in entropies:
+        if entropies[thing] > max_entropy:
+            guess = thing
+            max_entropy = entropies[thing]
+    return guess
+
+
+def solve(choice):
+    wordsize = len(choice)
+    if not 5 <= wordsize <= 7:
+        return
+
+    file_path_answers = Path(f"../words/answers/{wordsize}.txt")
+
+    with open(file_path_answers) as file:
+        answers = file.readlines()
+        answers = [word.replace('\n', '').strip() for word in answers]
+
+    file_path_allowed = Path(f"../words/answers/{wordsize}.txt")
+    with open(file_path_allowed) as file:
+        words = file.readlines()
+        words = [word.replace('\n', '').strip() for word in words]
+
+    words_copy = deepcopy(words)
+    guesses = wordsize + 1
+    guess, _ = best_first_guess(wordsize)
+    previous_guess = set()
+    previous_guess.add(guess)
+    for i in range(0, guesses):
+        status = [0] * wordsize
+        score = check_word(guess, status, choice)
+        print(f"Computer Guess {i + 1} : ", end="")
+        print_word(guess, status)
+        if score == (EXACT * wordsize):
+            break
+        print()
+        words_copy = possible_matches(guess, status, words_copy, previous_guess)
+        entropies = dict()
+        for word in words_copy:
+            entropies[word] = calculate_entropy(word, words_copy, wordsize)
+        guess = next_guess(entropies)
+        previous_guess.add(guess)
+
+    if score == EXACT * wordsize:
+        print("Solved Successfully!")
+    else:
+        print("FAILED")
