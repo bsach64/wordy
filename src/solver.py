@@ -55,27 +55,37 @@ def _is_possible_match(guess: str, status: [int], match: str):
     """
     nope = set()  # Match should not contain these letters
     not_contains = dict()  # key: position where value: letter should not be
-    exact = set()
+    exact = set()  # Set of tuples containing exact letters along with their index
 
     for i, letter in enumerate(guess):
         if status[i] == EXACT:
+            # If match does not have an exact letter
             if letter != match[i]:
                 return False
             else:
                 exact.add((i, letter))
         elif status[i] == 0:
+            # Adding letters which should not be present
             nope.add(letter)
         if status[i] == CLOSE:
             not_contains[i] = letter
 
+    # Accounting for multiple occurrences
+    # For example, guess: "needs" with status [2, 1, 0, 0, 0]
+    # 'e' should be removed from the list of not present words
+    # since one occurence is in the wrong place & there is no second occurence
     for letter in not_contains.values():
         if letter in nope:
             nope.remove(letter)
 
+    # All those letters which are incorrect location should also be in the match
+    # If they are not present then we should return False
     for letter in not_contains.values():
         if letter not in match:
             return False
 
+    # match should not contain any grey letters && should not contain CLOSE letters
+    # at the exact same location
     for i, letter in enumerate(match):
         if (i, letter) in exact:
             continue
@@ -85,6 +95,13 @@ def _is_possible_match(guess: str, status: [int], match: str):
             if not_contains[i] == letter:
                 return False
 
+    # Again this accounts for multiple occurences of the same letter
+    # Consider this example,
+    # guess: "eerie" with status [1, 2, 0, 0, 1]
+    # match: "enter"
+    # This match should return False,
+    # since number of close occurences of match is less than
+    # number of close occurences of guess
     if len(guess) != len(set(guess)):
         count_close = _count_close_occurences(guess, status)
         count_match = _count_close_occurences(match, status)

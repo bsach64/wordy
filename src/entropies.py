@@ -4,17 +4,17 @@ import sys
 from pathlib import Path
 
 """
-Calculate entropies for all five letter words.
+Calculate entropies for all n letter words.
 """
 
 
 def main():
     entropies = dict()
 
-    file_path_answers = Path(f"../words/allowed/allowed_{sys.argv[1]}_letter.txt")
+    file_path_answers = Path(f"../words/answers/{sys.argv[1]}.txt")
     with open(file_path_answers) as file:
         words = file.readlines()
-        words = [word.replace('\n', '') for word in words]
+        words = [word.replace('\n', '').strip() for word in words]
 
     for word, entropy in calculate_entropies(words, int(sys.argv[1])):
         entropies[word] = entropy

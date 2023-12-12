@@ -1,22 +1,9 @@
 import random
 from wordle import check_word, print_word, EXACT, get_guess
-from solver import possible_matches, calculate_entropy
+from solver import possible_matches, calculate_entropy, best_first_guess
 from copy import deepcopy
 from termcolor import cprint
 from pathlib import Path
-
-
-file_path_answers = Path("../words/answers/5.txt")
-
-with open(file_path_answers) as file:
-    answers = file.readlines()
-    answers = [word.replace('\n', '') for word in answers]
-
-
-file_path_allowed = Path("../words/allowed/allowed_5_letter.txt")
-with open(file_path_allowed) as file:
-    words = file.readlines()
-    words = [word.replace('\n', '') for word in words]
 
 
 def next_guess(entropies):
@@ -29,23 +16,28 @@ def next_guess(entropies):
     return guess
 
 
-def main():
-    stats = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, "nope": 0}
-    help = []
+def compete(wordsize: int):
+    file_path_answers = Path(f"../words/answers/{wordsize}.txt")
+
+    with open(file_path_answers) as file:
+        answers = file.readlines()
+        answers = [word.replace('\n', '').strip() for word in answers]
+
+    file_path_allowed = Path(f"../words/answers/{wordsize}.txt")
+    with open(file_path_allowed) as file:
+        words = file.readlines()
+        words = [word.replace('\n', '').strip() for word in words]
+
     choice = random.choice(answers)
-    print(f"----{choice}")
     words_copy = deepcopy(words)
-    wordsize = 5
     guesses = wordsize + 1
     won = False
     comp_won = False
     cprint(f"{wordsize} letter - WORDLE", "green")
     cprint(f"You have {guesses} tries to guess the {wordsize}-letter word\n\n")
-
-    # print(choice)
-    guess = 'tares'
+    guess, _ = best_first_guess(wordsize)
     previous_guess = set()
-    previous_guess.add('tares')
+    previous_guess.add(guess)
     for i in range(0, guesses):
         user_guess = get_guess(words)
         user_status = [0]*wordsize
@@ -61,14 +53,12 @@ def main():
         print_word(guess, status)
         if score == (EXACT * wordsize):
             comp_won = True
-            stats[i + 1] += 1
-            print(stats)
             break
         print()
         words_copy = possible_matches(guess, status, words_copy, previous_guess)
         entropies = dict()
         for word in words_copy:
-            entropies[word] = calculate_entropy(word, words_copy)
+            entropies[word] = calculate_entropy(word, words_copy, wordsize)
         guess = next_guess(entropies)
         previous_guess.add(guess)
 
@@ -79,9 +69,6 @@ def main():
     else:
         print("\nSorry, Both failed")
 
-    # print(stats)
-    # print(help)
-
 
 if __name__ == "__main__":
-    main()
+    compete()
