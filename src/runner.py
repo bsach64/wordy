@@ -2,7 +2,7 @@ import argparse
 from wordle import play
 from solver import best_first_guess, solve
 from user_v_comp import compete
-from test_solver_multiprocessing import simulate
+from test_solver_multiprocessing import simulate, cal, get_stats
 
 parser = argparse.ArgumentParser(
     description="Play and Solve wordle games"
@@ -73,16 +73,14 @@ elif args.first:
 elif args.compete:
     compete(args.compete)
 elif args.stats:
+    print("Generating...")
     if args.stats == 6:
-        print("Average Time Taken: 0.256")
-        print("Average Number of Guesses: 2.811")
+        simulate(args.stats, [(1, 10), (100, 200), (200, 300), (300, 400)], target=get_stats)
     elif args.stats == 5:
-        print("Average Time Taken: 1.079")
-        print("Average Number of Guesses: 3.565")
+        simulate(args.stats, [(1, 25), (25, 50), (50, 75), (75, 100)], target=get_stats)
     elif args.stats == 7:
-        print("Average Time Taken: 0.181")
-        print("Average Number of Guesses: 2.728")
+        simulate(args.stats, [(1, 100), (100, 200), (200, 300), (300, 400)], target=get_stats)
 elif args.run:
-    simulate(args.run)
+    simulate(args.run, [(1, 25), (25, 50), (50, 75), (75, 100)], target=cal)
 elif args.guess:
     solve(args.guess)

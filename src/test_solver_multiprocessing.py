@@ -52,29 +52,58 @@ def cal(index_range, stats, times, answers, words, wordsize, lock):
             times.append(stop - start)
 
 
-def simulate(wordsize: int):
-    file_path_answers = Path(f"../words/answers/{'nyt5'if wordsize==5 else wordsize}.txt")
+def get_stats(index_range, stats, times, answers, words, wordsize, lock):
+    for index in range(*index_range):
+        start = time.time()
+        choice = answers[index]
+        words_copy = deepcopy(words)
+        guesses = wordsize + 1
+
+        guess, _ = best_first_guess(wordsize)
+        previous_guess = set()
+        previous_guess.add(guess)
+        for i in range(0, guesses):
+            status = [0] * wordsize
+            score = check_word(guess, status, choice)
+
+            if score == (EXACT * wordsize):
+                with lock:
+                    stats[i + 1] += 1
+                break
+
+            words_copy = possible_matches(guess, status, words_copy, previous_guess)
+            entropies = dict()
+            for word in words_copy:
+                entropies[word] = calculate_entropy(word, words_copy, wordsize)
+            guess = next_guess(entropies)
+            previous_guess.add(guess)
+        stop = time.time()
+        with lock:
+            times.append(stop - start)
+
+
+def simulate(wordsize: int, index_ranges, target):
+    file_path_answers = Path(f"../words/answers/{wordsize}.txt")
 
     with open(file_path_answers) as file:
         answers = file.readlines()
         answers = [word.replace('\n', '').strip() for word in answers]
 
-    file_path_allowed = Path(f"../words/answers/{'nyt5'if wordsize==5 else wordsize}.txt")
+    file_path_allowed = Path(f"../words/answers/{wordsize}.txt")
     with open(file_path_allowed) as file:
         words = file.readlines()
         words = [word.replace('\n', '').strip() for word in words]
 
     ms = time.time()
     with multiprocessing.Manager() as manager:
-        stats = manager.dict({(i+1):0 for i in range(wordsize+1)})
+        stats = manager.dict({(i+1): 0 for i in range(wordsize+1)})
         times = manager.list()
         lock = manager.Lock()
 
-        index_ranges = [(1, 25), (25, 50), (50, 75), (75, 100)]
         processes = []
 
         for index_range in index_ranges:
-            process = multiprocessing.Process(target=cal, args=(index_range, stats, times, answers, words, wordsize, lock))
+            process = multiprocessing.Process(target=target, args=(index_range, stats, times, answers, words, wordsize, lock))
             processes.append(process)
             process.start()
 
