@@ -7,6 +7,7 @@ from test_solver_multiprocessing import simulate, cal, get_stats
 parser = argparse.ArgumentParser(
     description="Play and Solve wordle games"
 )
+
 group = parser.add_mutually_exclusive_group()
 
 # Play
